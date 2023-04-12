@@ -1,0 +1,3 @@
+#! /bin/sh
+
+clear;elm-live -u index.html src/Main.elm
