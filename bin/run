@@ -1,3 +1,2 @@
 #! /bin/sh
-
-clear;elm-live -u index.html src/Main.elm
+elm-live src/Main.elm -u
