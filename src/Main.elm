@@ -1,8 +1,8 @@
 module Main exposing (..)
 
 --import Time
+--import AppUrl exposing (AppUrl, QueryParameters)
 
-import AppUrl exposing (AppUrl, QueryParameters)
 import Browser exposing (UrlRequest)
 import Browser.Dom as Dom exposing (Viewport)
 import Browser.Events as Events
@@ -51,8 +51,9 @@ import Url exposing (Url)
 
 type alias Model =
     { page : Route
-    , key : Nav.Key
-    , url : AppUrl
+
+    --, key : Nav.Key
+    --, url : AppUrl
     , verses : Verses
     , animationState : VerseAnimation
     }
@@ -67,9 +68,9 @@ type alias Verses =
 
 
 type Msg
-    = UrlChanged Url
-    | LinkClicked UrlRequest
-    | Goto Route
+    = Goto Route
+      --| UrlChanged Url
+      --| LinkClicked UrlRequest
     | Tick Float
 
 
@@ -167,41 +168,40 @@ verseAnimationToAlpha va =
 
 
 -- Route Stuff --
+{-
+   toRoute : AppUrl -> Route
+   toRoute url =
+       -- Maybe.withDefault NotFound (parse route url)
+       case url.path of
+           [] ->
+               Home
 
+           [ "about" ] ->
+               About
 
-toRoute : AppUrl -> Route
-toRoute url =
-    -- Maybe.withDefault NotFound (parse route url)
-    case url.path of
-        [] ->
-            Home
+           [ "donate" ] ->
+               Donate
 
-        [ "about" ] ->
-            About
+           [ "blog", blogId ] ->
+               Blog <| Maybe.withDefault 1 (String.toInt blogId)
 
-        [ "donate" ] ->
-            Donate
-
-        [ "blog", blogId ] ->
-            Blog <| Maybe.withDefault 1 (String.toInt blogId)
-
-        _ ->
-            NotFound
-
-
-
+           _ ->
+               NotFound
+-}
 -- Main Function --
 
 
 main : Program () Model Msg
 main =
-    Browser.application
+    --Browser.application
+    Browser.document
         { init = init
         , update = update
         , view = view
         , subscriptions = subs
-        , onUrlChange = UrlChanged
-        , onUrlRequest = LinkClicked
+
+        --, onUrlChange = UrlChanged
+        --, onUrlRequest = LinkClicked
         }
 
 
@@ -209,12 +209,14 @@ main =
 -- Initial State --
 
 
-init : () -> Url -> Nav.Key -> Return Msg Model
-init _ url key =
+init : () -> Return Msg Model
+init _ =
     Return.singleton
-        { page = toRoute <| AppUrl.fromUrl url
-        , key = key
-        , url = AppUrl.fromUrl url
+        { page = About
+
+        -- toRoute <| AppUrl.fromUrl url
+        -- , key = key ,
+        --, url = AppUrl.fromUrl url
         , verses =
             Verses
                 (Maybe.withDefault { verse = "", ref = "" } <|
@@ -233,17 +235,17 @@ init _ url key =
 update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
-        UrlChanged url ->
-            Return.singleton { model | page = toRoute <| AppUrl.fromUrl url }
+        {- UrlChanged url ->
+               Return.singleton { model | page = toRoute <| AppUrl.fromUrl url }
 
-        LinkClicked urlRequest ->
-            case urlRequest of
-                Browser.Internal url ->
-                    return model <| Nav.pushUrl model.key <| Url.toString url
+           LinkClicked urlRequest ->
+               case urlRequest of
+                   Browser.Internal url ->
+                       return model <| Nav.pushUrl model.key <| Url.toString url
 
-                Browser.External href ->
-                    return model <| Nav.load href
-
+                   Browser.External href ->
+                     return model <| Nav.load href
+        -}
         Goto page ->
             Return.singleton { model | page = page }
 
@@ -527,7 +529,7 @@ pageButton label target current =
             text label
 
     else
-        El.link
+        Input.button
             [ Font.color pal.link
             , Font.shadow
                 { offset = ( 1, 1 )
@@ -537,24 +539,30 @@ pageButton label target current =
             , Border.widthEach { edges | bottom = 2 }
             , Border.dashed
             ]
-            { url =
-                case target of
-                    Home ->
-                        "/"
-
-                    Blog i ->
-                        "/blog/" ++ String.fromInt i
-
-                    About ->
-                        "/about"
-
-                    Donate ->
-                        "/donate"
-
-                    NotFound ->
-                        "/not_found"
+            { onPress = Just <| Goto target
             , label = text label
             }
+
+
+
+{- url =
+       case target of
+           Home ->
+               "/"
+
+           Blog i ->
+               "/blog/" ++ String.fromInt i
+
+           About ->
+               "/about"
+
+           Donate ->
+               "/donate"
+
+           NotFound ->
+               "/not_found"
+   , label = text label
+-}
 
 
 body : List (Element Msg) -> Element Msg
