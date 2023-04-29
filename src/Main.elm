@@ -244,8 +244,7 @@ view model =
     { title = "Tiwale"
     , body =
         [ layout
-            [ Font.size 18
-            , Font.color pal.black
+            [ Font.color pal.black
             , Font.family [ Font.serif ]
             , Bg.gradient
                 { angle = (7 / 8) * pi
@@ -372,7 +371,7 @@ viewVerse anim b =
     paragraph
         (List.concat
             [ noSelect True
-            , [ Font.size 14
+            , [ Font.size 16
               , Font.italic
               , Font.justify
               , Font.color pal.md
