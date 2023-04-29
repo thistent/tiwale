@@ -3,17 +3,14 @@ module Main exposing (..)
 --import Time
 --import AppUrl exposing (AppUrl, QueryParameters)
 
-import Browser exposing (UrlRequest)
-import Browser.Dom as Dom exposing (Viewport)
+import Browser
 import Browser.Events as Events
-import Browser.Navigation as Nav
 import Ease
 import Element as El
     exposing
         ( Attribute
         , Element
         , alignRight
-        , alignTop
         , centerX
         , centerY
         , column
@@ -23,7 +20,6 @@ import Element as El
         , layout
         , none
         , padding
-        , paddingXY
         , paragraph
         , px
         , rgb255
@@ -39,10 +35,8 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Fifo exposing (Fifo)
-import Html exposing (Html)
 import Html.Attributes as Attr
-import Return exposing (Return, return)
-import Url exposing (Url)
+import Return exposing (Return)
 
 
 
@@ -51,9 +45,6 @@ import Url exposing (Url)
 
 type alias Model =
     { page : Route
-
-    --, key : Nav.Key
-    --, url : AppUrl
     , verses : Verses
     , animationState : VerseAnimation
     }
@@ -69,8 +60,6 @@ type alias Verses =
 
 type Msg
     = Goto Route
-      --| UrlChanged Url
-      --| LinkClicked UrlRequest
     | Tick Float
 
 
@@ -93,10 +82,12 @@ type VerseAnimation
     | UpdateVerse
 
 
+fadeDuration : Float
 fadeDuration =
     1000
 
 
+holdDuration : Float
 holdDuration =
     10000
 
@@ -163,45 +154,20 @@ verseAnimationToAlpha va =
             El.alpha <| Ease.reverse Ease.inOutSine <| current / duration
 
         UpdateVerse ->
-            El.alpha 0
+            El.alpha 0.01
 
 
 
--- Route Stuff --
-{-
-   toRoute : AppUrl -> Route
-   toRoute url =
-       -- Maybe.withDefault NotFound (parse route url)
-       case url.path of
-           [] ->
-               Home
-
-           [ "about" ] ->
-               About
-
-           [ "donate" ] ->
-               Donate
-
-           [ "blog", blogId ] ->
-               Blog <| Maybe.withDefault 1 (String.toInt blogId)
-
-           _ ->
-               NotFound
--}
 -- Main Function --
 
 
 main : Program () Model Msg
 main =
-    --Browser.application
     Browser.document
         { init = init
         , update = update
         , view = view
         , subscriptions = subs
-
-        --, onUrlChange = UrlChanged
-        --, onUrlRequest = LinkClicked
         }
 
 
@@ -213,10 +179,6 @@ init : () -> Return Msg Model
 init _ =
     Return.singleton
         { page = About
-
-        -- toRoute <| AppUrl.fromUrl url
-        -- , key = key ,
-        --, url = AppUrl.fromUrl url
         , verses =
             Verses
                 (Maybe.withDefault { verse = "", ref = "" } <|
@@ -235,17 +197,6 @@ init _ =
 update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
-        {- UrlChanged url ->
-               Return.singleton { model | page = toRoute <| AppUrl.fromUrl url }
-
-           LinkClicked urlRequest ->
-               case urlRequest of
-                   Browser.Internal url ->
-                       return model <| Nav.pushUrl model.key <| Url.toString url
-
-                   Browser.External href ->
-                     return model <| Nav.load href
-        -}
         Goto page ->
             Return.singleton { model | page = page }
 
@@ -293,12 +244,8 @@ view model =
     { title = "Tiwale"
     , body =
         [ layout
-            [ -- Bg.color pal.sky
-              Font.color pal.black
+            [ Font.color pal.black
             , Font.family [ Font.serif ]
-
-            --, Font.size 20
-            , getExtFont "Kreon" -- "Vollkorn"
             , Bg.gradient
                 { angle = (7 / 8) * pi
                 , steps =
@@ -314,8 +261,6 @@ view model =
                 [ spacing gap
                 , height fill
                 , centerX
-
-                --, El.explain Debug.todo
                 ]
                 [ row [ width fill, spacing <| gap // 2 ]
                     [ row [ width fill, spacing gap ]
@@ -327,28 +272,13 @@ view model =
                                 , color = pal.yellow
                                 }
                             , spacing 4
-
-                            --, El.moveUp 5
-                            --, El.moveLeft 2
                             ]
-                            [ el
-                                [ --Font.variant Font.smallCaps
-                                  Font.letterSpacing 4
-                                , Font.size 50
-                                , Font.bold
-                                , centerX
-                                , getExtFont "Sansita Swashed"
+                            [ El.image
+                                [ width <| px 200
                                 ]
-                              <|
-                                text "Tiwale"
-                            , el
-                                [ Font.letterSpacing 0.75
-                                , Font.italic
-                                , Font.size 14
-                                , centerX
-                                ]
-                              <|
-                                text "Helping Malawians Shine"
+                                { src = "assets/tiwale.png"
+                                , description = "Tiwale: Helping Malawians Shine"
+                                }
                             ]
                         , longestVerseView model.animationState model.verses.current
                         ]
@@ -368,8 +298,6 @@ view model =
                     [ pageButton "About us" About model.page
                     , pageButton "What we do" Home model.page
                     , pageButton "Donations" Donate model.page
-
-                    --, pageButton "Elsie's Blog" (Blog 1) model.page
                     ]
                 , case model.page of
                     Home ->
@@ -400,8 +328,6 @@ bibleVerseList =
     , { verse = "Whatever you do, work heartily as for the Lord and not for men, knowing that from the Lord you will receive the inheritance as your reward. You are serving the Lord Christ.", ref = "Colossians 3:23-24" }
     , { verse = "I do it all for the sake of the gospel, that I may share with them in its blessings.", ref = "1 Corinthians 9:23" }
     , { verse = "I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me.", ref = "Galatians 2:20" }
-
-    --, { verse = "", ref = "" }
     ]
 
 
@@ -440,7 +366,6 @@ viewVerse anim b =
             , [ Font.italic
               , Font.justify
               , Font.color pal.md
-              , Font.size 16
               , centerY
               , width <| El.maximum 600 fill
               , verseAnimationToAlpha anim
@@ -470,7 +395,6 @@ longestVerseView anim b =
             , [ Font.italic
               , Font.justify
               , Font.color <| El.rgba 0 0 0 0
-              , Font.size 16
               , centerY
               , width <| El.maximum 600 fill
               , El.inFront <| viewVerse anim b
@@ -496,6 +420,7 @@ longestVerseView anim b =
 -- Other Stuff --
 
 
+emailElsie : Element Msg
 emailElsie =
     El.link
         [ Font.color pal.link
@@ -544,27 +469,6 @@ pageButton label target current =
             }
 
 
-
-{- url =
-       case target of
-           Home ->
-               "/"
-
-           Blog i ->
-               "/blog/" ++ String.fromInt i
-
-           About ->
-               "/about"
-
-           Donate ->
-               "/donate"
-
-           NotFound ->
-               "/not_found"
-   , label = text label
--}
-
-
 body : List (Element Msg) -> Element Msg
 body =
     textColumn
@@ -587,6 +491,7 @@ par ts =
         List.intersperse (El.text " ") ts
 
 
+highlighted : Element Msg
 highlighted =
     el
         [ Bg.color <| El.rgba 1 0 0 0.5
@@ -621,7 +526,7 @@ numStudents =
 
 
 aboutView : Model -> Element Msg
-aboutView model =
+aboutView _ =
     body
         [ textColumn
             [ width fill
@@ -645,7 +550,7 @@ aboutView model =
                 [ text "At Tiwale, we believe that everyone deserves the chance to reach their full potential, no matter where they come from. Our mission is to help Malawians by providing access to education and resources that allow for brighter futures."
                 ]
             , el [ width fill ] <|
-                el [ centerX, Font.bold, Font.size 24 ] <|
+                el [ centerX, Font.bold ] <|
                     text "Ken & Elsie Stanton"
             , par
                 [ text "Tiwale was founded by Ken and Elsie Stanton in 2022."
@@ -655,7 +560,7 @@ aboutView model =
 
 
 donateView : Model -> Element Msg
-donateView model =
+donateView _ =
     body
         [ par
             [ text "Any donation amount can help our students reach their goals."
@@ -690,6 +595,12 @@ pal =
     }
 
 
+edges :
+    { top : Int
+    , bottom : Int
+    , left : Int
+    , right : Int
+    }
 edges =
     { top = 0
     , bottom = 0
@@ -698,6 +609,12 @@ edges =
     }
 
 
+corners :
+    { topLeft : Int
+    , topRight : Int
+    , bottomLeft : Int
+    , bottomRight : Int
+    }
 corners =
     { topLeft = 0
     , topRight = 0
@@ -706,16 +623,15 @@ corners =
     }
 
 
-noSelect : Bool -> List (Attribute msg)
+noSelect : Bool -> List (Attribute Msg)
 noSelect b =
     let
         none =
-            case b of
-                True ->
-                    "none"
+            if b then
+                "none"
 
-                False ->
-                    "auto"
+            else
+                "auto"
     in
     [ style "-webkit-user-select" none
     , style "-khtml-user-select" none
@@ -726,6 +642,7 @@ noSelect b =
     ]
 
 
+style : String -> String -> Attribute Msg
 style s t =
     El.htmlAttribute <| Attr.style s t
 
