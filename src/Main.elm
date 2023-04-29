@@ -552,7 +552,7 @@ aboutView _ =
                 El.image
                     [ width <| px 300
                     ]
-                    { src = "assets/ken-elsie.jpg"
+                    { src = "assets/ken-elsie.png"
                     , description = "Ken and Elsie"
                     }
             , par
