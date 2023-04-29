@@ -244,7 +244,8 @@ view model =
     { title = "Tiwale"
     , body =
         [ layout
-            [ Font.color pal.black
+            [ Font.size 18
+            , Font.color pal.black
             , Font.family [ Font.serif ]
             , Bg.gradient
                 { angle = (7 / 8) * pi
@@ -324,10 +325,18 @@ bibleVerseList =
     [ { verse = "In the same way, let your light shine before others, so that they may see your good works and give glory to your Father who is in heaven."
       , ref = "Matthew 5:16 ESV"
       }
-    , { verse = "Little children, let us not love in word or talk but in deed and in truth.", ref = "1 John 3:18 ESV" }
-    , { verse = "Whatever you do, work heartily as for the Lord and not for men, knowing that from the Lord you will receive the inheritance as your reward. You are serving the Lord Christ.", ref = "Colossians 3:23-24" }
-    , { verse = "I do it all for the sake of the gospel, that I may share with them in its blessings.", ref = "1 Corinthians 9:23" }
-    , { verse = "I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me.", ref = "Galatians 2:20" }
+    , { verse = "Little children, let us not love in word or talk but in deed and in truth."
+      , ref = "1 John 3:18 ESV"
+      }
+    , { verse = "Whatever you do, work heartily as for the Lord and not for men, knowing that from the Lord you will receive the inheritance as your reward. You are serving the Lord Christ."
+      , ref = "Colossians 3:23-24"
+      }
+    , { verse = "I do it all for the sake of the gospel, that I may share with them in its blessings."
+      , ref = "1 Corinthians 9:23"
+      }
+    , { verse = "I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me."
+      , ref = "Galatians 2:20"
+      }
     ]
 
 
@@ -363,7 +372,8 @@ viewVerse anim b =
     paragraph
         (List.concat
             [ noSelect True
-            , [ Font.italic
+            , [ Font.size 14
+              , Font.italic
               , Font.justify
               , Font.color pal.md
               , centerY
@@ -505,12 +515,14 @@ homeView : Model -> Element Msg
 homeView model =
     body
         [ par
-            [ text "We assist students by paying their school fees, as well as providing uniforms, shoes, exercise books, backpacks, writing materials, and scientific calculators. Because most of the students live in remote areas with little or no access to electricity, we also provide solar powered torches/flashlights to give students the ability to do their homework after dark."
+            [ text "We assist students by paying their school fees, as well as providing uniforms, shoes, exercise books, backpacks, writing materials, and scientific calculators."
+            , text "Because most of the students live in remote areas with little or no access to electricity, we also provide solar powered torches/flashlights to give students the ability to do their homework after dark."
             ]
         , par
-            [ text <| "This is just our initial program at Tiwale. We are currently helping " ++ String.fromInt numStudents ++ " students. There are many more who need help!"
-            , text
-                "In the future, we also hope to expand our help to communities with other needs, such as improving access to clean water."
+            [ text "This is just our initial program at Tiwale."
+            , text <| "We are currently helping " ++ String.fromInt numStudents ++ " students."
+            , text "There are many more who need help!"
+            , text "In the future, we also hope to expand our help to communities with other needs, such as improving access to clean water."
             ]
         , par
             [ text "Please consider"
@@ -544,10 +556,12 @@ aboutView _ =
                     , description = "Ken and Elsie"
                     }
             , par
-                [ text "In Malawi, school is free for primary school, but secondary students are expected to pay tuition every quarter. Many students struggle with this financial requirement and some are unable to attend school."
+                [ text "In Malawi, school is free for primary school, but secondary students are expected to pay tuition every quarter."
+                , text "Many students struggle with this financial requirement and some are unable to attend school."
                 ]
             , par
-                [ text "At Tiwale, we believe that everyone deserves the chance to reach their full potential, no matter where they come from. Our mission is to help Malawians by providing access to education and resources that allow for brighter futures."
+                [ text "At Tiwale, we believe that everyone deserves the chance to reach their full potential, no matter where they come from."
+                , text "Our mission is to help Malawians by providing access to education and resources that allow for brighter futures."
                 ]
             , el [ width fill ] <|
                 el [ centerX, Font.bold ] <|
@@ -645,13 +659,3 @@ noSelect b =
 style : String -> String -> Attribute Msg
 style s t =
     El.htmlAttribute <| Attr.style s t
-
-
-getExtFont : String -> Attribute Msg
-getExtFont extFont =
-    Font.family
-        [ Font.external
-            { name = extFont
-            , url = "https//fonts.googleapis.com/css?family=" ++ extFont
-            }
-        ]
